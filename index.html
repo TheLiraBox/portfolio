@@ -56,9 +56,12 @@
     will-change: transform;
   }
   .cursor-ring.hovered { width: 56px; height: 56px; border-color: var(--gold); }
-  body.custom-cursor-active { cursor: none; }
+  body.custom-cursor-active,
+  body.custom-cursor-active *,
   body.custom-cursor-active a,
-  body.custom-cursor-active button { cursor: none; }
+  body.custom-cursor-active button,
+  body.custom-cursor-active input,
+  body.custom-cursor-active label { cursor: none !important; }
 
   /* NOISE OVERLAY */
   body::before {
@@ -73,8 +76,9 @@
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     padding: 24px 60px;
     display: flex; align-items: center; justify-content: space-between;
-    transition: background 0.4s, padding 0.4s;
+    transition: background 0.4s, padding 0.4s, transform 0.4s ease;
   }
+  nav.nav-hidden { transform: translateY(-110%); }
   nav.scrolled {
     background: rgba(10,10,10,0.92);
     backdrop-filter: blur(20px);
@@ -114,17 +118,44 @@
 
   /* HERO */
   .hero {
-    min-height: 88vh; max-height: 920px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    display: block;
     position: relative;
     overflow: hidden;
   }
+  .hero-right {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    max-height: none;
+    z-index: 0;
+  }
+  .hero-image {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: grayscale(15%);
+    transition: transform 0.8s ease;
+  }
+  .hero-right:hover .hero-image { transform: scale(1.03); }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(10,10,10,0.45) 0%,
+      rgba(10,10,10,0.3) 25%,
+      rgba(10,10,10,0.65) 65%,
+      rgba(10,10,10,0.96) 100%
+    );
+  }
   .hero-left {
+    position: relative;
+    z-index: 2;
     display: flex; flex-direction: column;
     justify-content: flex-end;
-    padding: 0 60px 52px;
-    position: relative; z-index: 2;
+    min-height: 100vh;
+    padding: 0 60px 72px;
+    max-width: 700px;
   }
   .hero-label {
     font-family: 'Syne', sans-serif;
@@ -186,25 +217,11 @@
   }
   .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
-  .hero-right {
-    position: relative; overflow: hidden; max-height: 920px;
-  }
-  .hero-image {
-    width: 100%; height: 100%;
-    object-fit: cover; object-position: center top;
-    filter: grayscale(15%);
-    transition: transform 0.8s ease;
-  }
-  .hero-right:hover .hero-image { transform: scale(1.03); }
-  .hero-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to right, var(--dark) 0%, transparent 40%),
-                linear-gradient(to top, var(--dark) 0%, transparent 30%);
-  }
+  /* hero-right defined above in HERO block */
   .hero-stats {
-    position: absolute; bottom: 60px; right: 40px;
+    position: absolute; bottom: 72px; right: 60px;
     display: flex; flex-direction: column; gap: 20px;
-    z-index: 3;
+    z-index: 3; text-align: right;
   }
   .stat {
     text-align: right;
@@ -1262,7 +1279,7 @@
         <div class="contact-link-icon">✉</div>
         <div>
           <div class="contact-link-label">E-mail</div>
-          <div class="contact-link-text"><span class="__cf_email__" data-cfemail="47332f222b2e352625283f07202a262e2b6924282a">[email&#160;protected]</span></div>
+          <div class="contact-link-text"><span class="__cf_email__" data-cfemail="47332f222b2e352625283f07202a262e2b6924282a">thelirabox@gmail.com</span></div>
         </div>
       </a>
       <a href="tel:+5521969633801" class="contact-link">
@@ -1306,52 +1323,58 @@
 </footer>
 
 <script>
-  // Custom cursor
-  (function() {
-    const dot  = document.getElementById('cursorDot');
-    const ring = document.getElementById('cursorRing');
+(function() {
+  // ── CUSTOM CURSOR ──────────────────────────────────────────────────────────
+  if (window.matchMedia('(pointer: fine)').matches) {
+    var dot  = document.getElementById('cursorDot');
+    var ring = document.getElementById('cursorRing');
+    if (dot && ring) {
+      document.body.classList.add('custom-cursor-active');
+      var mx = 0, my = 0, rx = 0, ry = 0, on = false;
 
-    // Only activate on true pointer devices
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+      document.addEventListener('mousemove', function(e) {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = 'translate('+(mx-4)+'px,'+(my-4)+'px)';
+        if (!on) { on=true; dot.style.opacity='1'; ring.style.opacity='1'; }
+      });
+      document.addEventListener('mouseleave', function() {
+        dot.style.opacity='0'; ring.style.opacity='0'; on=false;
+      });
+      (function tick() {
+        rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+        ring.style.transform = 'translate('+(rx-18)+'px,'+(ry-18)+'px)';
+        requestAnimationFrame(tick);
+      })();
+      document.querySelectorAll('a,button,.expertise-card,.gallery-item,.client-item,.testimonial-card,.edu-card,.nav-cta').forEach(function(el) {
+        el.addEventListener('mouseenter', function() { ring.classList.add('hovered'); });
+        el.addEventListener('mouseleave', function() { ring.classList.remove('hovered'); });
+      });
+    }
+  }
 
-    // Activate cursor:none via class so fallback always works
-    document.body.classList.add('custom-cursor-active');
-    dot.style.opacity  = '0';
-    ring.style.opacity = '0';
+  // ── NAV: visible only at top, hides when user scrolls ─────────────────────
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    if (y > 60)  { nav.classList.add('scrolled');    } else { nav.classList.remove('scrolled');    }
+    if (y > 80)  { nav.classList.add('nav-hidden');  } else { nav.classList.remove('nav-hidden');  }
+  });
 
-    let mouseX = 0, mouseY = 0;
-    let ringX  = 0, ringY  = 0;
-    let active = false;
-
-    document.addEventListener('mousemove', function(e) {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // Position dot instantly (no lag)
-      dot.style.transform = 'translate(' + (mouseX - 4) + 'px, ' + (mouseY - 4) + 'px)';
-
-      if (!active) {
-        dot.style.opacity  = '1';
-        ring.style.opacity = '1';
-        active = true;
+  // ── SCROLL REVEAL ──────────────────────────────────────────────────────────
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.remove('animate-start');
+        e.target.classList.add('visible');
       }
     });
+  }, { threshold: 0.08 });
 
-    // Smooth lagging ring via rAF
-    function tick() {
-      ringX += (mouseX - ringX) * 0.12;
-      ringY += (mouseY - ringY) * 0.12;
-      ring.style.transform = 'translate(' + (ringX - 18) + 'px, ' + (ringY - 18) + 'px)';
-      requestAnimationFrame(tick);
-    }
-    tick();
-
-    // Hover effects
-    function addHover(el) {
-      el.addEventListener('mouseenter', function() { ring.classList.add('hovered'); });
-      el.addEventListener('mouseleave', function() { ring.classList.remove('hovered'); });
-    }
-    document.querySelectorAll('a, button, .expertise-card, .gallery-item, .client-item, .testimonial-card, .edu-card').forEach(addHover);
-  })();
-
-  u
+  document.querySelectorAll('.reveal, .exp-item').forEach(function(el) {
+    el.classList.add('animate-start');
+    observer.observe(el);
+  });
+})();
+</script>
+</body>
+</html>
