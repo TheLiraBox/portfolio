@@ -500,6 +500,9 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 1px; background: rgba(200,146,74,0.08);
   }
+  @media (max-width: 1200px) {
+    .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+  }
   .testimonial-card {
     background: var(--dark-2);
     padding: 44px 36px;
@@ -1071,41 +1074,85 @@
   <div class="testimonials-grid reveal reveal-delay-2">
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"Profissional excepcional. O Lira entregou um trabalho de branding que superou todas as minhas expectativas. Ele entende profundamente as necessidades do cliente e transforma isso em identidade visual poderosa."</p>
+      <p class="testimonial-text">"O Anderson é super simpático, empático, capta a essência do que precisamos e a qualidade do resultado é espetacular! Super recomendo!"</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">R</div>
+        <div>
+          <div class="testimonial-name">Rosana Lima</div>
+          <div class="testimonial-source">Google · 5 fotos · set. 2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Excelente profissional, com muita expertise e conhecimento na área. Me indicaram a The Lira Box e foi a melhor decisão."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">D</div>
+        <div>
+          <div class="testimonial-name">Danielle G.</div>
+          <div class="testimonial-source">Google Local Guide · set. 2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Uma excelente equipe profissional. Destaque para o Anderson Lira que atende super bem, consegue entender as necessidades do negócio e criar o que realmente precisamos. Super recomendo."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">Â</div>
+        <div>
+          <div class="testimonial-name">Ângelo Neves</div>
+          <div class="testimonial-source">Google Local Guide · 53 avaliações · set. 2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"The Lira Box é a melhor opção de designer! Parabéns, Lira!!"</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">P</div>
+        <div>
+          <div class="testimonial-name">Patrícia A. Fontenelle</div>
+          <div class="testimonial-source">Google · set. 2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Ótimo profissional, trabalho com qualidade excepcional."</p>
       <div class="testimonial-author">
         <div class="testimonial-avatar">A</div>
         <div>
-          <div class="testimonial-name">Avaliação Google</div>
-          <div class="testimonial-source">The Lira Box · Google</div>
+          <div class="testimonial-name">André Nunes</div>
+          <div class="testimonial-source">Google · set. 2021</div>
         </div>
       </div>
     </div>
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"Trabalhar com o Lira foi uma das melhores decisões para o nosso projeto. A entrega foi impecável, dentro do prazo e com uma qualidade audiovisual acima do mercado. Recomendo sem hesitar."</p>
+      <p class="testimonial-text">"Super atencioso, soube captar perfeitamente a proposta do meu trabalho. Criação da minha logo exatamente como eu imaginava. Super indico. Sucesso sempre."</p>
       <div class="testimonial-author">
-        <div class="testimonial-avatar">C</div>
+        <div class="testimonial-avatar">A</div>
         <div>
-          <div class="testimonial-name">Avaliação Google</div>
-          <div class="testimonial-source">The Lira Box · Google</div>
+          <div class="testimonial-name">Artes Divina Luz</div>
+          <div class="testimonial-source">Google · set. 2021</div>
         </div>
       </div>
     </div>
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"O Lira tem um olhar estratégico diferenciado. Além da criatividade, ele trouxe dados e métricas que mostraram o impacto real do trabalho de comunicação. Parceria que pretendo manter por muito tempo."</p>
+      <p class="testimonial-text">"Profissional super atencioso e dedicado. Todos os materiais produzidos foram de extrema qualidade."</p>
       <div class="testimonial-author">
-        <div class="testimonial-avatar">M</div>
+        <div class="testimonial-avatar">J</div>
         <div>
-          <div class="testimonial-name">Avaliação Google</div>
-          <div class="testimonial-source">The Lira Box · Google</div>
+          <div class="testimonial-name">Jorge Araujo</div>
+          <div class="testimonial-source">Google · set. 2021</div>
         </div>
       </div>
     </div>
     <div class="testimonial-card testimonial-cta-card">
       <div class="testimonial-google-icon">G</div>
       <p class="testimonial-cta-text">Veja todas as avaliações no Google</p>
-      <a href="https://www.google.com/maps/search/the+lira+box" target="_blank" class="btn-primary" style="display:inline-block;margin-top:20px;font-size:10px;padding:13px 28px;">
+      <a href="https://www.google.com/search?q=the+lira+box" target="_blank" class="btn-primary" style="display:inline-block;margin-top:20px;font-size:10px;padding:13px 28px;">
         <span>Ver no Google ↗</span>
       </a>
     </div>
@@ -1120,11 +1167,11 @@
       Vamos construir algo<br><em>extraordinário</em><br>juntos?
     </h2>
     <div class="contact-links reveal reveal-delay-2">
-      <a href="mailto:thelirabox@gmail.com" class="contact-link">
+      <a href="/cdn-cgi/l/email-protection#700418151c190211121f0830171d11191c5e131f1d" class="contact-link">
         <div class="contact-link-icon">✉</div>
         <div>
           <div class="contact-link-label">E-mail</div>
-          <div class="contact-link-text">thelirabox@gmail.com</div>
+          <div class="contact-link-text"><span class="__cf_email__" data-cfemail="47332f222b2e352625283f07202a262e2b6924282a">[email&#160;protected]</span></div>
         </div>
       </a>
       <a href="tel:+5521969633801" class="contact-link">
@@ -1163,11 +1210,11 @@
   <span class="footer-copy">© 2025 Lira Machado. Todos os direitos reservados.</span>
   <div class="footer-links">
     <a href="https://www.linkedin.com/in/liramachado" target="_blank">LinkedIn</a>
-    <a href="mailto:thelirabox@gmail.com">E-mail</a>
+    <a href="/cdn-cgi/l/email-protection#106478757c796271727f6850777d71797c3e737f7d">E-mail</a>
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Custom cursor
   const dot = document.getElementById('cursorDot');
   const ring = document.getElementById('cursorRing');
@@ -1186,10 +1233,4 @@
   }
   animateRing();
 
-  document.querySelectorAll('a, button, .expertise-card, .gallery-item, .client-item').forEach(el => {
-    el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
-  });
-
-  // Navbar scroll
-  const na
+  docu
