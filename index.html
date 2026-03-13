@@ -114,7 +114,7 @@
 
   /* HERO */
   .hero {
-    min-height: 100vh;
+    min-height: 88vh; max-height: 920px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     position: relative;
@@ -123,7 +123,7 @@
   .hero-left {
     display: flex; flex-direction: column;
     justify-content: flex-end;
-    padding: 0 60px 80px;
+    padding: 0 60px 52px;
     position: relative; z-index: 2;
   }
   .hero-label {
@@ -187,7 +187,7 @@
   .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
   .hero-right {
-    position: relative; overflow: hidden;
+    position: relative; overflow: hidden; max-height: 920px;
   }
   .hero-image {
     width: 100%; height: 100%;
@@ -713,30 +713,113 @@
 
   /* MOBILE */
   @media (max-width: 900px) {
+    /* NAV */
     nav { padding: 20px 24px; }
     nav.scrolled { padding: 14px 24px; }
     .nav-links { display: none; }
-    .hero { grid-template-columns: 1fr; }
-    .hero-right { height: 50vh; }
-    .hero-left { padding: 120px 24px 60px; }
+    .nav-cta { font-size: 10px; padding: 9px 18px; }
+
+    /* HERO — image as background, text overlaid */
+    .hero {
+      display: block;
+      position: relative;
+      min-height: 100svh;
+      max-height: none;
+    }
+    .hero-right {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      max-height: none;
+      z-index: 0;
+    }
+    .hero-image {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .hero-overlay {
+      background: linear-gradient(
+        to bottom,
+        rgba(10,10,10,0.55) 0%,
+        rgba(10,10,10,0.4) 30%,
+        rgba(10,10,10,0.75) 70%,
+        rgba(10,10,10,0.97) 100%
+      );
+    }
+    .hero-left {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 100svh;
+      padding: 0 28px 52px;
+    }
+    .hero-name {
+      font-size: clamp(52px, 14vw, 80px);
+    }
+    .hero-desc { max-width: 100%; font-size: 14px; }
+    .hero-cta-group { flex-direction: column; gap: 12px; }
+    .btn-primary, .btn-secondary { text-align: center; padding: 16px 24px; }
+    .hero-stats {
+      display: none;
+    }
+
+    /* ABOUT */
     .about { grid-template-columns: 1fr; }
-    .about-content { padding: 60px 24px; }
-    .expertise { padding: 80px 24px; }
+    .about-images { height: 70vw; max-height: 420px; }
+    .about-img-main { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .about-content { padding: 52px 24px; }
+
+    /* EXPERTISE */
+    .expertise { padding: 72px 24px; }
     .expertise-grid { grid-template-columns: 1fr; }
-    .expertise-header { flex-direction: column; gap: 24px; }
-    .experience { padding: 80px 24px; }
+    .expertise-header { flex-direction: column; gap: 20px; }
+    .expertise-card { padding: 36px 28px; }
+
+    /* EXPERIENCE */
+    .experience { padding: 72px 24px; }
     .exp-layout { grid-template-columns: 1fr; }
     .exp-photo { display: none; }
-    .exp-item { grid-template-columns: 1fr; gap: 8px; }
+    .exp-item { grid-template-columns: 1fr; gap: 6px; }
+
+    /* CLIENTS */
     .clients { padding: 60px 24px; }
     .clients-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* GALLERY */
     .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
     .gallery-item:first-child { grid-row: span 1; }
-    .education { padding: 80px 24px; }
+    .gallery-item { height: 44vw; }
+
+    /* TESTIMONIALS */
+    .testimonials { padding: 72px 24px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .testimonial-card { padding: 32px 24px; }
+
+    /* EDUCATION */
+    .education { padding: 72px 24px; }
     .edu-grid { grid-template-columns: 1fr; }
-    .contact { padding: 80px 24px; grid-template-columns: 1fr; }
+    .edu-card { padding: 28px 24px; }
+
+    /* CONTACT */
+    .contact { padding: 72px 24px; grid-template-columns: 1fr; }
     .contact-right { display: none; }
-    footer { padding: 28px 24px; flex-direction: column; gap: 16px; text-align: center; }
+    .contact-headline { font-size: clamp(36px, 10vw, 52px); }
+
+    /* FOOTER */
+    footer { padding: 28px 24px; flex-direction: column; gap: 14px; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+
+  /* Extra small screens */
+  @media (max-width: 480px) {
+    .hero-name { font-size: 52px; }
+    .ticker-item { padding: 0 24px; gap: 24px; font-size: 10px; }
+    .clients-grid { grid-template-columns: 1fr 1fr; }
+    .gallery { grid-template-columns: 1fr; }
+    .gallery-item { height: 72vw; }
   }
 </style>
 </head>
@@ -756,7 +839,7 @@
     <li><a href="#formacao">Formação</a></li>
     <li><a href="#contato">Contato</a></li>
   </ul>
-  <a href="/cdn-cgi/l/email-protection#45242b213c6b292c372405292c33206b262a28" class="nav-cta">Falar comigo</a>
+  <a href="https://wa.me/5521969633801?text=Ol%C3%A1%20Lira%2C%20vim%20pelo%20seu%20portf%C3%B3lio%20e%20gostaria%20de%20conversar!" target="_blank" class="nav-cta">Falar comigo ↗</a>
 </nav>
 
 <!-- HERO -->
@@ -1175,7 +1258,7 @@
       Vamos construir algo<br><em>extraordinário</em><br>juntos?
     </h2>
     <div class="contact-links reveal reveal-delay-2">
-      <a href="/cdn-cgi/l/email-protection#700418151c190211121f0830171d11191c5e131f1d" class="contact-link">
+      <a href="mailto:thelirabox@gmail.com?subject=Contato%20pelo%20Portf%C3%B3lio" class="contact-link">
         <div class="contact-link-icon">✉</div>
         <div>
           <div class="contact-link-label">E-mail</div>
@@ -1215,14 +1298,14 @@
 <!-- FOOTER -->
 <footer>
   <a href="#" class="footer-logo">Lira <span>Machado</span></a>
-  <span class="footer-copy">© 2025 Lira Machado. Todos os direitos reservados.</span>
+  <span class="footer-copy">© 2026 Lira Machado. Todos os direitos reservados.</span>
   <div class="footer-links">
     <a href="https://www.linkedin.com/in/liramachado" target="_blank">LinkedIn</a>
-    <a href="/cdn-cgi/l/email-protection#106478757c796271727f6850777d71797c3e737f7d">E-mail</a>
+    <a href="mailto:thelirabox@gmail.com?subject=Contato%20pelo%20Portf%C3%B3lio">E-mail</a>
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // Custom cursor
   (function() {
     const dot  = document.getElementById('cursorDot');
