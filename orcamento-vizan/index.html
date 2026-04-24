@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposta Comercial — Vizan Viagens & Concierge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #080808;
+      --card: #141414;
+      --card-hover: #1c1c1c;
+      --border: rgba(255,255,255,0.07);
+      --border-gold: rgba(201,169,110,0.35);
+      --gold: #c9a96e;
+      --gold-light: #e8d4a8;
+      --gold-muted: rgba(201,169,110,0.18);
+      --white: #f5f0e8;
+      --muted: rgba(245,240,232,0.52);
+      --muted2: rgba(245,240,232,0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 99999;
+      transform: translate(-50%,-50%);
+      transition: width 0.2s, height 0.2s;
+    }
+    #cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(201,169,110,0.5); border-radius: 50%;
+      pointer-events: none; z-index: 99998;
+      transform: translate(-50%,-50%);
+      transition: width 0.25s, height 0.25s, border-color 0.25s;
+    }
+
+    /* ── CANVAS ── */
+    #canvas-bg {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0; opacity: 0.5;
+    }
+
+    /* ── GRAIN ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 99997; opacity: 0.45;
+    }
+
+    /* ── LAYOUT ── */
+    .wrapper { max-width: 920px; margin: 0 auto; padding: 0 44px; position: relative; z-index: 1; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(34px);
+      transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── GOLD LINE ── */
+    .gold-line {
+      display: block; height: 1px;
+      background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+      transform-origin: left; transform: scaleX(0);
+      transition: transform 1.1s cubic-bezier(0.16,1,0.3,1);
+    }
+    .gold-line.visible { transform: scaleX(1); }
+
+    /* ── PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      width: 0%; z-index: 99996;
+      box-shadow: 0 0 10px rgba(201,169,110,0.7);
+      transition: width 0.1s linear;
+    }
+
+    /* ── SCROLL TOP ── */
+    #scroll-top {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 46px; height: 46px;
+      border: 1px solid rgba(201,169,110,0.35); border-radius: 50%;
+      background: rgba(8,8,8,0.85); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 9000; color: var(--gold); font-size: 18px;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.3s, transform 0.3s, border-color 0.2s;
+    }
+    #scroll-top.show { opacity: 1; transform: translateY(0); }
+    #scroll-top:hover { border-color: var(--gold); background: rgba(201,169,110,0.08); }
+
+    /* ── HEADER ── */
+    header {
+      padding: 68px 0 54px;
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .header-glow {
+      position: absolute; top: -80px; left: -100px;
+      width: 480px; height: 280px;
+      background: radial-gradient(ellipse, rgba(201,169,110,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-inner {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; flex-wrap: wrap; gap: 28px;
+    }
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 8px;
+    }
+    .header-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; font-weight: 300; letter-spacing: 0.04em; color: var(--white);
+    }
+    .header-meta { text-align: right; }
+    .header-meta p { font-size: 13px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .header-meta strong { display: block; font-size: 16px; color: var(--gold); font-weight: 400; margin-top: 4px; }
+
+    /* ── HERO ── */
+    .hero { padding: 90px 0 72px; position: relative; }
+
+    .hero-label {
+      font-size: 13px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 26px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .hero-label::after {
+      content: ''; height: 1px; width: 50px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(50px, 7.5vw, 74px);
+      font-weight: 300; line-height: 1.07; letter-spacing: -0.01em; color: var(--white);
+    }
+    .hero h1 em { font-style: italic; color: var(--gold-light); }
+
+    .hero-sub {
+      font-size: 18px; color: var(--muted);
+      max-width: 540px; margin-top: 24px; line-height: 1.9; font-weight: 300;
+    }
+
+    .services-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 42px; }
+    .tag {
+      font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+      border: 1px solid rgba(201,169,110,0.3); color: var(--gold);
+      padding: 9px 20px; border-radius: 2px;
+      transition: background 0.3s, border-color 0.3s; cursor: default;
+    }
+    .tag:hover { background: var(--gold-muted); border-color: var(--gold); }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--border); }
+
+    /* ── SECTION ── */
+    section { padding: 84px 0; border-bottom: 1px solid var(--border); position: relative; }
+
+    .section-number {
+      font-size: 13px; letter-spacing: 0.32em; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 32px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .section-number span {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border: 1px solid var(--gold);
+      border-radius: 50%; font-size: 12px; flex-shrink: 0;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(34px, 5vw, 50px);
+      font-weight: 300; color: var(--white);
+      margin-bottom: 12px; letter-spacing: 0.01em; line-height: 1.13;
+    }
+
+    .section-desc {
+      font-size: 17px; color: var(--muted); max-width: 600px;
+      line-height: 1.9; margin-bottom: 44px; font-weight: 300;
+    }
+
+    /* ── PACKAGE CARDS ── */
+    .packages { display: grid; gap: 16px; }
+
+    .pkg {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 34px 40px;
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 28px;
+      transition: border-color 0.3s, background 0.3s, transform 0.35s, box-shadow 0.35s;
+      cursor: default; position: relative; overflow: hidden;
+    }
+    /* shimmer */
+    .pkg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 38%, rgba(201,169,110,0.045) 50%, transparent 62%);
+      transform: translateX(-120%); transition: transform 0.65s ease;
+    }
+    .pkg:hover::after { transform: translateX(120%); }
+    .pkg:hover {
+      border-color: var(--border-gold); background: var(--card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,169,110,0.07);
+    }
+    .pkg.highlight {
+      border-color: rgba(201,169,110,0.42);
+      background: linear-gradient(140deg, #17130a 0%, var(--card) 65%);
+    }
+    .pkg.highlight::before {
+      content: 'MAIS POPULAR';
+      position: absolute; top: -1px; right: 32px;
+      background: var(--gold); color: var(--black);
+      font-size: 9px; letter-spacing: 0.22em;
+      padding: 4px 12px; font-weight: 600; border-radius: 0 0 4px 4px;
+    }
+    .pkg.highlight:hover {
+      box-shadow: 0 18px 55px rgba(201,169,110,0.13), 0 0 0 1px rgba(201,169,110,0.18);
+    }
+    .pkg-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; color: var(--white); font-weight: 400; margin-bottom: 8px;
+    }
+    .pkg-detail { font-size: 15px; color: var(--muted); line-height: 1.75; }
+    .pkg-price { text-align: right; white-space: nowrap; }
+    .pkg-price .amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px; color: var(--gold-light); font-weight: 300; display: block; line-height: 1;
+    }
+    .pkg-price .period { font-size: 13px; color: var(--muted2); letter-spacing: 0.08em; margin-top: 5px; }
+
+    /* ── PRICE BLOCK ── */
+    .price-block {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 46px 50px;
+      display: flex; justify-content: space-between;
+      align-items: flex-start; flex-wrap: wrap; gap: 32px;
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .price-block:hover {
+      border-color: var(--border-gold);
+      box-shadow: 0 0 60px rgba(201,169,110,0.06);
+    }
+    .price-block-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 12px;
+    }
+    .price-block-detail { font-size: 16px; color: var(--muted); max-width: 440px; line-height: 1.85; }
+    .price-block-right .amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 54px; color: var(--gold-light); font-weight: 300; line-height: 1; white-space: nowrap;
+    }
+    .price-block-right .label {
+      font-size: 12px; color: var(--muted2); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 8px;
+    }
+
+    /* ── FEATURES ── */
+    .features { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; }
+    .feature-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      font-size: 15px; color: var(--muted); line-height: 1.75;
+    }
+    .feature-item::before {
+      content: '—'; color: var(--gold); flex-shrink: 0; margin-top: 1px; font-size: 13px;
+    }
+
+    /* ── PAYMENT ── */
+    .payment-options { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pay-opt {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 4px; padding: 11px 20px;
+      font-size: 14px; color: var(--muted);
+      display: flex; align-items: center; gap: 10px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .pay-opt:hover { border-color: rgba(201,169,110,0.22); color: var(--white); }
+    .pay-opt::before { content: '◆'; font-size: 6px; color: var(--gold); }
+
+    /* ── CALCULATOR ── */
+    .calculator {
+      background: linear-gradient(150deg, #130f07 0%, #111111 65%);
+      border: 1px solid rgba(201,169,110,0.22); border-radius: 8px;
+      padding: 58px 56px; position: relative; overflow: hidden;
+    }
+    .calculator::before {
+      content: ''; position: absolute; top: -70px; right: -70px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .calc-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; font-weight: 300; color: var(--white); margin-bottom: 10px;
+    }
+    .calc-sub { font-size: 16px; color: var(--muted); margin-bottom: 48px; max-width: 520px; line-height: 1.9; }
+
+    .combo-label {
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 20px;
+    }
+    .combo-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .combo-table th {
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--muted2); text-align: left; padding: 0 0 14px;
+      border-bottom: 1px solid var(--border); font-weight: 400;
+    }
+    .combo-table th:last-child { text-align: right; }
+    .combo-table td {
+      padding: 18px 0; font-size: 16px; color: var(--white);
+      border-bottom: 1px solid var(--border); vertical-align: top;
+    }
+    .combo-table td:last-child {
+      text-align: right; color: var(--gold-light);
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; white-space: nowrap;
+    }
+    .combo-table td small {
+      display: block; font-size: 13px; color: var(--muted2);
+      margin-top: 3px; font-family: 'DM Sans', sans-serif;
+    }
+    .combo-total {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 22px; border-top: 1px solid rgba(201,169,110,0.3);
+      flex-wrap: wrap; gap: 12px;
+    }
+    .combo-total-label { font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+    .combo-total-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px; font-weight: 300; color: var(--gold-light);
+    }
+    .combo-note { font-size: 14px; color: var(--muted2); font-style: italic; margin-top: 12px; line-height: 1.85; }
+
+    .combos { display: flex; flex-direction: column; }
+    .combo-section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+    .combo-section:first-child { padding-top: 0; }
+    .combo-section:last-child { border-bottom: none; padding-bottom: 0; }
+
+    /* ── AVULSO ── */
+    .avulso-note {
+      background: rgba(201,169,110,0.05); border: 1px solid rgba(201,169,110,0.14);
+      border-radius: 6px; padding: 30px 36px; margin-top: 60px;
+      font-size: 16px; color: var(--muted); line-height: 1.9;
+    }
+    .avulso-note strong { color: var(--gold-light); font-weight: 400; }
+
+    /* ── NEED LIST ── */
+    .need-list { display: grid; gap: 16px; margin-top: 34px; }
+    .need-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 28px 34px;
+      display: flex; gap: 24px; align-items: flex-start;
+      transition: border-color 0.3s, transform 0.35s, box-shadow 0.35s; cursor: default;
+    }
+    .need-item:hover {
+      border-color: rgba(201,169,110,0.25); transform: translateX(5px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .need-icon {
+      width: 46px; height: 46px; background: var(--gold-muted); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .need-content strong { display: block; font-size: 17px; color: var(--white); font-weight: 400; margin-bottom: 6px; }
+    .need-content p { font-size: 15px; color: var(--muted); line-height: 1.8; }
+
+    /* ── FOOTER ── */
+    footer { padding: 74px 0; text-align: center; }
+    .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 8px; }
+    .footer-tagline { font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted2); margin-bottom: 30px; }
+    .footer-line { height: 1px; width: 50px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 0 auto 30px; }
+    .footer-note { font-size: 15px; color: var(--muted); line-height: 1.9; }
+
+    @media (max-width: 680px) {
+      .wrapper { padding: 0 24px; }
+      .header-inner { flex-direction: column; align-items: flex-start; }
+      .header-meta { text-align: left; }
+      .pkg { grid-template-columns: 1fr; }
+      .pkg-price { text-align: left; }
+      .price-block { flex-direction: column; }
+      .price-block-right .amount { font-size: 40px; }
+      .calculator { padding: 34px 26px; }
+      .combo-total-value { font-size: 32px; }
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+  <div id="progress-bar"></div>
+  <canvas id="canvas-bg"></canvas>
+  <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <header>
+      <div class="header-glow"></div>
+      <div class="header-inner reveal">
+        <div>
+          <p class="brand">Lira Machado</p>
+          <p class="header-logo">Branding &amp; Estratégia</p>
+        </div>
+        <div class="header-meta">
+          <p>Proposta elaborada para</p>
+          <strong>Vizan Viagens &amp; Concierge</strong>
+          <p style="margin-top:6px;">Junho · 2025</p>
+        </div>
+      </div>
+      <span class="gold-line" style="margin-top:30px;"></span>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+      <p class="hero-label reveal">Proposta Comercial</p>
+      <h1 class="reveal reveal-delay-1">Uma estratégia <em>completa</em><br />para a Vizan Viagens</h1>
+      <p class="hero-sub reveal reveal-delay-2">
+        Abaixo você encontra os serviços, pacotes e condições detalhadas para darmos início à construção de uma presença digital consistente, estratégica e que converte.
+      </p>
+      <div class="services-tags reveal reveal-delay-3">
+        <span class="tag">Social Media</span>
+        <span class="tag">Site Institucional</span>
+        <span class="tag">Planejamento Estratégico</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 1. SOCIAL MEDIA -->
+    <section>
+      <p class="section-number reveal"><span>1</span> Social Media</p>
+      <h2 class="section-title reveal reveal-delay-1">Presença ativa nas redes</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        12 a 15 postagens mensais entre posts únicos, carrosséis e reels — distribuídos estrategicamente no Instagram, Facebook, LinkedIn e TikTok. Conteúdo alinhado à identidade da marca e ao funil de vendas.
+      </p>
+
+      <div class="packages">
+        <div class="pkg reveal reveal-delay-1">
+          <div>
+            <p class="pkg-name">Pacote 1 — Essencial</p>
+            <p class="pkg-detail">8 posts estáticos + 4 vídeos/reels por mês<br />Redes META + LinkedIn + TikTok</p>
+          </div>
+          <div class="pkg-price">
+            <span class="amount" data-target="900">R$&nbsp;0</span>
+            <p class="period">/mês</p>
+          </div>
+        </div>
+
+        <div class="pkg highlight reveal reveal-delay-2">
+          <div>
+            <p class="pkg-name">Pacote 2 — Crescimento</p>
+            <p class="pkg-detail">5 posts estáticos + 10 vídeos/reels por mês<br />Redes META + LinkedIn + TikTok</p>
+          </div>
+          <div class="pkg-price">
+            <span class="amount" data-target="1200">R$&nbsp;0</span>
+            <p class="period">/mês</p>
+          </div>
+        </div>
+
+        <div class="pkg reveal reveal-delay-3">
+          <div>
+            <p class="pkg-name">Pacote 3 — Vídeo Total</p>
+            <p class="pkg-detail">15 vídeos/reels por mês<br />Redes META + LinkedIn + TikTok</p>
+          </div>
+          <div class="pkg-price">
+            <span class="amount" data-target="1500">R$&nbsp;0</span>
+            <p class="period">/mês</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-options reveal reveal-delay-4">
+        <div class="pay-opt">Boleto / PIX à vista</div>
+        <div class="pay-opt">Boleto / PIX em até 2x sem juros</div>
+        <div class="pay-opt">NuPay em até 24x</div>
+        <div class="pay-opt">Cartão de Crédito em até 12x</div>
+      </div>
+    </section>
+
+    <!-- 2. SITE -->
+    <section>
+      <p class="section-number reveal"><span>2</span> Site Institucional</p>
+      <h2 class="section-title reveal reveal-delay-1">Sua vitrine digital</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        Página institucional completa, construída para converter visitantes em clientes e ranquear no Google.
+      </p>
+
+      <div class="price-block reveal reveal-delay-2">
+        <div>
+          <p class="price-block-title">Site Completo + Blog</p>
+          <p class="price-block-detail">
+            Páginas: Início · Sobre · Destinos · Blog · Contato<br />
+            Integração com WhatsApp · Conteúdos para Blog otimizados para SEO · Ranqueamento orgânico no Google
+          </p>
+          <div class="features">
+            <div class="feature-item">Desenvolvimento completo da identidade digital</div>
+            <div class="feature-item">Blog com conteúdos estratégicos para SEO</div>
+            <div class="feature-item">Integração com WhatsApp para conversão direta</div>
+            <div class="feature-item">Otimização para ranqueamento no Google</div>
+          </div>
+        </div>
+        <div class="price-block-right">
+          <p class="amount" data-target="1200">R$&nbsp;0</p>
+          <p class="label">Investimento único</p>
+        </div>
+      </div>
+
+      <div class="payment-options reveal reveal-delay-3">
+        <div class="pay-opt">Boleto / PIX à vista</div>
+        <div class="pay-opt">Boleto / PIX em até 2x sem juros</div>
+        <div class="pay-opt">NuPay em até 24x</div>
+        <div class="pay-opt">Cartão de Crédito em até 12x</div>
+      </div>
+    </section>
+
+    <!-- 3. PLANEJAMENTO -->
+    <section>
+      <p class="section-number reveal"><span>3</span> Planejamento Estratégico</p>
+      <h2 class="section-title reveal reveal-delay-1">A rota que leva ao crescimento</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        Um planejamento anual completo que entrega diagnóstico, direção e execução — transformando a Vizan em uma máquina de vendas estruturada.
+      </p>
+
+      <div class="price-block reveal reveal-delay-2">
+        <div>
+          <p class="price-block-title">Planejamento Estratégico Anual</p>
+          <div class="features">
+            <div class="feature-item"><strong style="color:var(--gold-light);font-weight:400;">Cortesias incluídas:</strong> Insights de mercado + Google Meu Negócio configurado</div>
+            <div class="feature-item">Rota Estratégica: diagnóstico completo, direção, relatório e plano de ação renovado a cada 30 dias</div>
+            <div class="feature-item">Blueprint de Vendas: funil de vendas, canais de aquisição e planejamento de campanhas</div>
+            <div class="feature-item">Scripts de atendimento e abordagem comercial</div>
+            <div class="feature-item">Estrutura de follow-up e recuperação de leads</div>
+          </div>
+        </div>
+        <div class="price-block-right">
+          <p class="amount" data-target="2000">R$&nbsp;0</p>
+          <p class="label">Investimento único</p>
+        </div>
+      </div>
+
+      <div class="payment-options reveal reveal-delay-3">
+        <div class="pay-opt">Boleto / PIX à vista</div>
+        <div class="pay-opt">Boleto / PIX em até 5x sem juros</div>
+        <div class="pay-opt">NuPay em até 24x</div>
+        <div class="pay-opt">Cartão de Crédito em até 12x</div>
+      </div>
+    </section>
+
+    <!-- SIMULAÇÃO -->
+    <section style="border-bottom:none; padding-bottom:0;">
+      <p class="section-number reveal"><span>✦</span> Como fica na prática</p>
+      <h2 class="section-title reveal reveal-delay-1">Custo mensal real por combinação</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        Veja quanto você paga por mês ao combinar os serviços. Os valores parcelados transformam grandes investimentos em parcelas acessíveis — sem abrir mão de nada.
+      </p>
+
+      <div class="calculator reveal reveal-delay-2">
+        <p class="calc-title">Simulação de Mensalidade</p>
+        <p class="calc-sub">
+          Os serviços de Site e Planejamento são pagamentos únicos que podem ser parcelados. Simulamos abaixo com parcelamento em 12x — o Social Media é o único serviço de cobrança recorrente.
+        </p>
+
+        <div class="combos">
+          <div class="combo-section">
+            <p class="combo-label">Pacote 1 de Social Media + Site + Planejamento</p>
+            <table class="combo-table">
+              <thead><tr><th>Serviço</th><th style="text-align:right;">Por mês</th></tr></thead>
+              <tbody>
+                <tr><td>Social Media — Pacote 1 (Essencial)<small>8 estáticos + 4 vídeos · recorrente mensal</small></td><td>R$&nbsp;900</td></tr>
+                <tr><td>Site Institucional<small>R$1.200 parcelado em 12x</small></td><td>R$&nbsp;100</td></tr>
+                <tr><td>Planejamento Estratégico Anual<small>R$2.000 parcelado em 12x</small></td><td>R$&nbsp;167</td></tr>
+              </tbody>
+            </table>
+            <div class="combo-total">
+              <p class="combo-total-label">Total estimado / mês</p>
+              <p class="combo-total-value">≈ R$&nbsp;1.167</p>
+            </div>
+          </div>
+
+          <div class="combo-section">
+            <p class="combo-label">Pacote 2 de Social Media + Site + Planejamento</p>
+            <table class="combo-table">
+              <thead><tr><th>Serviço</th><th style="text-align:right;">Por mês</th></tr></thead>
+              <tbody>
+                <tr><td>Social Media — Pacote 2 (Crescimento)<small>5 estáticos + 10 vídeos · recorrente mensal</small></td><td>R$&nbsp;1.200</td></tr>
+                <tr><td>Site Institucional<small>R$1.200 parcelado em 12x</small></td><td>R$&nbsp;100</td></tr>
+                <tr><td>Planejamento Estratégico Anual<small>R$2.000 parcelado em 12x</small></td><td>R$&nbsp;167</td></tr>
+              </tbody>
+            </table>
+            <div class="combo-total">
+              <p class="combo-total-label">Total estimado / mês</p>
+              <p class="combo-total-value">≈ R$&nbsp;1.467</p>
+            </div>
+          </div>
+
+          <div class="combo-section">
+            <p class="combo-label">Pacote 3 de Social Media + Site + Planejamento</p>
+            <table class="combo-table">
+              <thead><tr><th>Serviço</th><th style="text-align:right;">Por mês</th></tr></thead>
+              <tbody>
+                <tr><td>Social Media — Pacote 3 (Vídeo Total)<small>15 vídeos/reels · recorrente mensal</small></td><td>R$&nbsp;1.500</td></tr>
+                <tr><td>Site Institucional<small>R$1.200 parcelado em 12x</small></td><td>R$&nbsp;100</td></tr>
+                <tr><td>Planejamento Estratégico Anual<small>R$2.000 parcelado em 12x</small></td><td>R$&nbsp;167</td></tr>
+              </tbody>
+            </table>
+            <div class="combo-total">
+              <p class="combo-total-label">Total estimado / mês</p>
+              <p class="combo-total-value">≈ R$&nbsp;1.767</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="combo-note" style="margin-top:34px;">
+          * Valores de parcelamento calculados com base em 12x. Condições podem variar conforme a forma de pagamento escolhida. Somente o Social Media tem cobrança recorrente mensal — Site e Planejamento são investimentos únicos.
+        </p>
+      </div>
+
+      <div class="avulso-note reveal">
+        <strong>Contratação flexível:</strong> Você pode contratar todos os serviços em conjunto para uma estratégia integrada e com mais impacto — ou optar por qualquer um deles de forma avulsa, no ritmo que fizer mais sentido para o momento da Vizan. Cada serviço funciona de forma independente.
+      </div>
+    </section>
+
+    <!-- O QUE PRECISO -->
+    <section>
+      <p class="section-number reveal"><span>↓</span> Próximos passos</p>
+      <h2 class="section-title reveal reveal-delay-1">O que preciso de você</h2>
+      <p class="section-desc reveal reveal-delay-2">
+        Para darmos início ao trabalho com agilidade e qualidade, vou precisar dos seguintes materiais da Vizan:
+      </p>
+
+      <div class="need-list">
+        <div class="need-item reveal reveal-delay-1">
+          <div class="need-icon">🎨</div>
+          <div class="need-content">
+            <strong>Manual ou Guideline da Marca</strong>
+            <p>Cores, tipografias, formas, logos e variações — qualquer documento que defina a identidade visual da Vizan. Caso ainda não exista, podemos incluir a criação no escopo.</p>
+          </div>
+        </div>
+        <div class="need-item reveal reveal-delay-2">
+          <div class="need-icon">📧</div>
+          <div class="need-content">
+            <strong>Acesso ao E-mail Google da Empresa</strong>
+            <p>Necessário para configurar o Google Meu Negócio, Google Analytics e Google Adsense — essenciais para visibilidade e rastreamento de resultados.</p>
+          </div>
+        </div>
+        <div class="need-item reveal reveal-delay-3">
+          <div class="need-icon">📋</div>
+          <div class="need-content">
+            <strong>Documento de Serviços e Destinos</strong>
+            <p>Um doc com todos os serviços oferecidos, pacotes, nomes, destinos atendidos, descrições e qualquer informação relevante ao negócio da Vizan. Quanto mais completo, melhor o resultado.</p>
+          </div>
+        </div>
+        <div class="need-item reveal reveal-delay-4">
+          <div class="need-icon">📸</div>
+          <div class="need-content">
+            <strong>Banco de Imagens e Vídeos</strong>
+            <p>Fotos e vídeos de clientes em viagens, destinos atendidos e bastidores. Material real faz toda a diferença na autenticidade e no alcance do conteúdo.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="reveal">
+      <div class="footer-line"></div>
+      <p class="footer-brand">Lira Machado</p>
+      <p class="footer-tagline">Branding · Estratégia · IA</p>
+      <p class="footer-note">
+        Proposta elaborada especialmente para a Vizan Viagens &amp; Concierge<br />
+        Dúvidas? Estou à disposição para conversar sobre cada detalhe.
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    /* ── CURSOR ── */
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function animCursor(){
+      cur.style.left=mx+'px'; cur.style.top=my+'px';
+      rx+=(mx-rx)*0.13; ry+=(my-ry)*0.13;
+      ring.style.left=rx+'px'; ring.style.top=ry+'px';
+      requestAnimationFrame(animCursor);
+    })();
+    document.querySelectorAll('.pkg,.need-item,.pay-opt,.tag').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{ cur.style.width='16px';cur.style.height='16px';ring.style.width='52px';ring.style.height='52px';ring.style.borderColor='var(--gold)'; });
+      el.addEventListener('mouseleave',()=>{ cur.style.width='10px';cur.style.height='10px';ring.style.width='36px';ring.style.height='36px';ring.style.borderColor='rgba(201,169,110,0.5)'; });
+    });
+
+    /* ── PARTICLES ── */
+    const canvas=document.getElementById('canvas-bg');
+    const ctx=canvas.getContext('2d');
+    let W,H;
+    function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+    resize(); window.addEventListener('resize',resize);
+    const pts=[];
+    for(let i=0;i<60;i++) pts.push({
+      x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight,
+      r:Math.random()*1.3+0.3,
+      dx:(Math.random()-0.5)*0.2, dy:(Math.random()-0.5)*0.2,
+      a:Math.random()*0.45+0.08
+    });
+    (function drawP(){
+      ctx.clearRect(0,0,W,H);
+      pts.forEach(p=>{
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(201,169,110,${p.a})`; ctx.fill();
+        p.x+=p.dx; p.y+=p.dy;
+        if(p.x<0||p.x>W) p.dx*=-1;
+        if(p.y<0||p.y>H) p.dy*=-1;
+      });
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+        const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+        if(d<120){ ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(201,169,110,${0.065*(1-d/120)})`; ctx.lineWidth=0.5; ctx.stroke(); }
+      }
+      requestAnimationFrame(drawP);
+    })();
+
+    /* ── SCROLL REVEAL + GOLD LINE ── */
+    const obs=new IntersectionObserver(entries=>entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); }),{threshold:0.11});
+    document.querySelectorAll('.reveal,.gold-line').forEach(el=>obs.observe(el));
+
+    /* ── PROGRESS BAR + SCROLL TOP ── */
+    const bar=document.getElementById('progress-bar');
+    const topBtn=document.getElementById('scroll-top');
+    window.addEventListener('scroll',()=>{
+      bar.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+      topBtn.classList.toggle('show',window.scrollY>500);
+    });
+
+    /* ── COUNT UP ── */
+    function countUp(el,target){
+      if(el.dataset.counted) return;
+      el.dataset.counted='1';
+      let n=0; const step=target/55;
+      const iv=setInterval(()=>{
+        n=Math.min(n+step,target);
+        el.textContent='R$\u00a0'+Math.round(n).toLocaleString('pt-BR');
+        if(n>=target) clearInterval(iv);
+      },16);
+    }
+    const cObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+      if(e.isIntersecting) countUp(e.target,parseInt(e.target.dataset.target));
+    }),{threshold:0.5});
+    document.querySelectorAll('[data-target]').forEach(el=>cObs.observe(el));
+  </script>
+</body>
+</html>
