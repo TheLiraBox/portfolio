@@ -1036,6 +1036,51 @@
     .gallery { grid-template-columns: 1fr; }
     .gallery-item { height: 72vw; }
   }
+
+  /* EMAIL PICKER */
+  .email-trigger { cursor: pointer; }
+  #emailPicker {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,10,10,0.85); backdrop-filter: blur(12px);
+    z-index: 5000; align-items: center; justify-content: center;
+  }
+  #emailPicker.open { display: flex; }
+  .email-picker-box {
+    background: var(--dark-2); border: 1px solid rgba(200,146,74,0.25);
+    padding: 48px 40px; min-width: 340px; text-align: center;
+  }
+  .email-picker-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 300; margin-bottom: 6px;
+  }
+  .email-picker-sub {
+    font-family: 'Syne', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 32px;
+  }
+  .email-picker-addr {
+    font-size: 13px; color: rgba(250,250,248,0.5);
+    margin-bottom: 28px; font-family: 'DM Sans', sans-serif;
+  }
+  .email-options { display: flex; flex-direction: column; gap: 10px; }
+  .email-option {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px; border: 1px solid rgba(255,255,255,0.07);
+    background: var(--dark-3); text-decoration: none; color: var(--white);
+    transition: border-color 0.3s, background 0.3s; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: 12px;
+    font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .email-option:hover { border-color: var(--gold); background: var(--dark-4); }
+  .email-option-icon { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
+  .email-picker-close {
+    margin-top: 20px; background: none; border: none;
+    font-family: 'Syne', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; transition: color 0.3s;
+  }
+  .email-picker-close:hover { color: var(--white); }
+
 </style>
 </head>
 <body>
@@ -1494,13 +1539,13 @@
       Vamos construir algo<br><em>extraordinário</em><br>juntos?
     </h2>
     <div class="contact-links reveal reveal-delay-2">
-      <a href="/cdn-cgi/l/email-protection#80f4e8e5ece9f2e1e2eff8c0e7ede1e9ecaee3efedbff3f5e2eae5e3f4bdc3efeef4e1f4efa5b2b0f0e5ecefa5b2b0d0eff2f4e6a5c3b3a5c2b3ece9ef" class="contact-link">
+      <div class="contact-link email-trigger" onclick="openEmailPicker()">
         <div class="contact-link-icon">✉</div>
         <div>
           <div class="contact-link-label">E-mail</div>
-          <div class="contact-link-text"><span class="__cf_email__" data-cfemail="47332f222b2e352625283f07202a262e2b6924282a">[email&#160;protected]</span></div>
+          <div class="contact-link-text">thelirabox@gmail.com</div>
         </div>
-      </a>
+      </div>
       <a href="tel:+5521969633801" class="contact-link">
         <div class="contact-link-icon">☏</div>
         <div>
@@ -1537,11 +1582,31 @@
   <span class="footer-copy">© 2026 Lira Machado. Todos os direitos reservados.</span>
   <div class="footer-links">
     <a href="https://www.linkedin.com/in/liramachado" target="_blank">LinkedIn</a>
-    <a href="/cdn-cgi/l/email-protection#0c78646960657e6d6e63744c6b616d6560226f6361337f796e66696f78314f6362786d7863293e3c7c696063293e3c5c637e786a294f3f294e3f606563">E-mail</a>
+    <a href="mailto:thelirabox@gmail.com?subject=Contato%20pelo%20Portf%C3%B3lio">E-mail</a>
   </div>
 </footer>
+<!-- EMAIL PICKER MODAL -->
+<div id="emailPicker" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.88);backdrop-filter:blur(12px);z-index:5000;align-items:center;justify-content:center;">
+  <div style="background:var(--dark-2);border:1px solid rgba(200,146,74,0.25);padding:48px 40px;min-width:340px;text-align:center;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:6px;">Enviar e-mail</div>
+    <div style="font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Escolha o app</div>
+    <div style="font-size:13px;color:rgba(250,250,248,0.45);margin-bottom:28px;font-family:'DM Sans',sans-serif;">thelirabox@gmail.com</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a id="optGmail" href="#" target="_blank" style="display:flex;align-items:center;gap:16px;padding:16px 20px;border:1px solid rgba(255,255,255,0.07);background:var(--dark-3);text-decoration:none;color:var(--white);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:border-color 0.3s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+        <span style="font-size:20px;width:28px;text-align:center;">✉</span> Gmail
+      </a>
+      <a id="optOutlook" href="#" target="_blank" style="display:flex;align-items:center;gap:16px;padding:16px 20px;border:1px solid rgba(255,255,255,0.07);background:var(--dark-3);text-decoration:none;color:var(--white);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:border-color 0.3s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+        <span style="font-size:20px;width:28px;text-align:center;">📧</span> Outlook
+      </a>
+      <a id="optMail" href="#" style="display:flex;align-items:center;gap:16px;padding:16px 20px;border:1px solid rgba(255,255,255,0.07);background:var(--dark-3);text-decoration:none;color:var(--white);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:border-color 0.3s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+        <span style="font-size:20px;width:28px;text-align:center;">📬</span> Apple Mail / Padrão
+      </a>
+    </div>
+    <button onclick="document.getElementById('emailPicker').style.display='none'" style="margin-top:24px;background:none;border:none;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);cursor:pointer;">✕ Fechar</button>
+  </div>
+</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 (function() {
   // ── CUSTOM CURSOR ──────────────────────────────────────────────────────────
   if (window.matchMedia('(pointer: fine)').matches) {
@@ -1550,7 +1615,6 @@
     if (dot && ring) {
       document.body.classList.add('custom-cursor-active');
       var mx = 0, my = 0, rx = 0, ry = 0, on = false;
-
       document.addEventListener('mousemove', function(e) {
         mx = e.clientX; my = e.clientY;
         dot.style.transform = 'translate('+(mx-4)+'px,'+(my-4)+'px)';
@@ -1564,23 +1628,97 @@
         ring.style.transform = 'translate('+(rx-18)+'px,'+(ry-18)+'px)';
         requestAnimationFrame(tick);
       })();
-      document.querySelectorAll('a,button,.expertise-card,.gallery-item,.client-item,.testimonial-card,.edu-card,.nav-cta').forEach(function(el) {
+      document.querySelectorAll('a,button,.expertise-card,.gallery-item,.client-item,.testimonial-card,.edu-card,.nav-cta,.email-trigger').forEach(function(el) {
         el.addEventListener('mouseenter', function() { ring.classList.add('hovered'); });
         el.addEventListener('mouseleave', function() { ring.classList.remove('hovered'); });
       });
     }
   }
 
-  // ── NAV: visible only at top, hides when user scrolls ─────────────────────
+  // ── NAV: visible at top only ───────────────────────────────────────────────
   var nav = document.getElementById('nav');
   window.addEventListener('scroll', function() {
     var y = window.scrollY;
-    if (y > 60)  { nav.classList.add('scrolled');    } else { nav.classList.remove('scrolled');    }
-    if (y > 80)  { nav.classList.add('nav-hidden');  } else { nav.classList.remove('nav-hidden');  }
+    if (y > 60)  { nav.classList.add('scrolled');   } else { nav.classList.remove('scrolled');   }
+    if (y > 80)  { nav.classList.add('nav-hidden'); } else { nav.classList.remove('nav-hidden'); }
   });
 
   // ── SCROLL REVEAL ──────────────────────────────────────────────────────────
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
       if (e.isIntersecting) {
-        e.target.classList.remove('anima
+        e.target.classList.remove('animate-start');
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal, .exp-item').forEach(function(el) {
+    el.classList.add('animate-start');
+    observer.observe(el);
+  });
+
+  // ── CASES CAROUSEL ────────────────────────────────────────────────────────
+  var carousel = document.getElementById('casesCarousel');
+  var prevBtn  = document.getElementById('carouselPrev');
+  var nextBtn  = document.getElementById('carouselNext');
+  if (carousel) {
+    var cases = JSON.parse(localStorage.getItem('lirabox_cases') || '[]');
+    var published = cases.filter(function(c) { return c.published; });
+    if (published.length > 0) {
+      carousel.innerHTML = '';
+      published.slice(0,8).forEach(function(c) {
+        var card = document.createElement('a');
+        card.className = 'case-card';
+        card.href = 'cases.html#case-' + c.id;
+        var imgHtml = c.cover
+          ? '<img class="case-card-img" src="'+c.cover+'" alt="'+c.title+'" />'
+          : '<div class="case-card-img-placeholder">◈</div>';
+        card.innerHTML = imgHtml +
+          '<div class="case-card-body">' +
+            '<div class="case-card-tag">'+(c.category||'Case')+'</div>' +
+            '<div class="case-card-title">'+c.title+'</div>' +
+            '<div class="case-card-excerpt">'+c.excerpt+'</div>' +
+          '</div>' +
+          '<div class="case-card-footer">' +
+            '<span class="case-card-date">'+(c.date||'')+'</span>' +
+            '<span class="case-card-arrow">→</span>' +
+          '</div>';
+        carousel.appendChild(card);
+      });
+      var idx = 0, cardW = 384;
+      function updateCarousel() {
+        carousel.style.transform = 'translateX(-'+(idx*cardW)+'px)';
+        prevBtn.classList.toggle('hidden', idx===0);
+        nextBtn.classList.toggle('hidden', idx>=published.length-1);
+      }
+      if (prevBtn) prevBtn.addEventListener('click', function() { if(idx>0){idx--;updateCarousel();} });
+      if (nextBtn) nextBtn.addEventListener('click', function() { if(idx<published.length-1){idx++;updateCarousel();} });
+      updateCarousel();
+    }
+  }
+
+  // ── EMAIL PICKER ──────────────────────────────────────────────────────────
+  var EMAIL   = 'thelirabox@gmail.com';
+  var SUBJECT = encodeURIComponent('Contato pelo Portfólio');
+  var BODY    = encodeURIComponent('Olá Lira, vim pelo seu portfólio e gostaria de conversar!');
+
+  window.openEmailPicker = function() {
+    document.getElementById('optGmail').href =
+      'https://mail.google.com/mail/?view=cm&fs=1&to='+EMAIL+'&su='+SUBJECT+'&body='+BODY;
+    document.getElementById('optOutlook').href =
+      'https://outlook.live.com/mail/0/deeplink/compose?to='+EMAIL+'&subject='+SUBJECT+'&body='+BODY;
+    document.getElementById('optMail').href =
+      'mailto:'+EMAIL+'?subject='+SUBJECT+'&body='+BODY;
+    var picker = document.getElementById('emailPicker');
+    picker.style.display = 'flex';
+  };
+
+  // Close picker when clicking backdrop
+  document.getElementById('emailPicker').addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+})();
+</script>
+</body>
+</html>
