@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Force. — Painel Operacional</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --black:#161614;
+  --orange:#f7931e;
+  --offwhite:#f0eeea;
+  --white:#ffffff;
+  --line:#e4e0d8;
+  --text-secondary:#6b675f;
+  --positive:#2e7d4f;
+  --negative:#b3452c;
+  --radius:14px;
+  --gap:18px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--offwhite);
+  color:var(--black);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:22px;}
+
+/* header */
+.header{
+  background:var(--black);
+  color:var(--offwhite);
+  border-radius:var(--radius);
+  padding:24px 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:var(--gap);
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.mark{
+  font-size:30px;
+  font-weight:800;
+  color:var(--orange);
+  line-height:1;
+}
+.brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px;}
+.brand p{margin:2px 0 0;font-size:12.5px;color:#b9b6ad;}
+.month-picker{display:flex;align-items:center;gap:8px;font-size:13px;color:#d8d5cc;}
+.month-picker select{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.25);
+  color:var(--offwhite);
+  border-radius:8px;
+  padding:7px 10px;
+  font-size:13px;
+}
+
+/* kpis */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-bottom:var(--gap);}
+.kpi-card{
+  background:var(--white);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  box-shadow:0 1px 3px rgba(22,22,20,.06);
+  border-top:3px solid var(--orange);
+}
+.kpi-label{font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.kpi-value{font-size:24px;font-weight:700;}
+.kpi-sub{font-size:12.5px;margin-top:4px;color:var(--text-secondary);}
+.kpi-sub.positive{color:var(--positive);font-weight:600;}
+.kpi-sub.negative{color:var(--negative);font-weight:600;}
+
+/* section shell */
+.card{
+  background:var(--white);
+  border-radius:var(--radius);
+  padding:20px 22px;
+  box-shadow:0 1px 3px rgba(22,22,20,.06);
+  margin-bottom:var(--gap);
+}
+.card h2{font-size:15px;margin:0 0 4px;font-weight:700;}
+.card .card-sub{font-size:12.5px;color:var(--text-secondary);margin:0 0 16px;}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap);}
+canvas{max-height:260px;}
+
+/* finance table */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  text-align:left;padding:9px 10px;border-bottom:2px solid var(--line);
+  color:var(--text-secondary);font-weight:600;font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;
+}
+td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+tr.total-row td{font-weight:700;border-top:2px solid var(--black);border-bottom:none;}
+.sem-tag{
+  display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;
+  background:var(--offwhite);color:var(--black);font-weight:600;
+}
+input.realizado{
+  width:100px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;
+  font-size:13px;font-family:inherit;
+}
+input.realizado:focus{outline:2px solid var(--orange);outline-offset:1px;}
+.table-scroll{max-height:420px;overflow-y:auto;}
+thead{position:sticky;top:0;background:var(--white);z-index:1;}
+
+/* rotina */
+.rotina-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+.task-card{border:1px solid var(--line);border-radius:10px;padding:14px;}
+.task-day{font-weight:700;font-size:13px;margin-bottom:6px;}
+.task-action{font-size:12.5px;color:var(--black);margin-bottom:6px;line-height:1.4;}
+.task-criterio{font-size:11.5px;color:var(--text-secondary);margin-bottom:10px;line-height:1.4;}
+.status-btn{
+  border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:filter .15s;
+}
+.status-btn:hover{filter:brightness(0.95);}
+.status-pendente{background:#f3e6d6;color:#8a5a1a;}
+.status-concluido{background:#e1efe4;color:var(--positive);}
+
+/* certs */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+.cert-card{border:1px solid var(--line);border-radius:10px;padding:14px;}
+.cert-name{font-weight:700;font-size:13px;margin-bottom:4px;line-height:1.35;}
+.cert-meta{font-size:11.5px;color:var(--text-secondary);margin-bottom:2px;}
+.cert-select{
+  margin-top:10px;width:100%;padding:7px 8px;border-radius:6px;border:1px solid var(--line);
+  font-size:12.5px;font-family:inherit;background:var(--white);
+}
+.progress-outer{background:var(--offwhite);border-radius:20px;height:8px;overflow:hidden;margin-top:12px;}
+.progress-inner{background:var(--orange);height:100%;transition:width .3s;}
+
+.footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  font-size:12px;color:var(--text-secondary);padding:6px 4px 20px;}
+.reset-btn{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;
+  font-size:12px;color:var(--text-secondary);cursor:pointer;}
+.reset-btn:hover{border-color:var(--negative);color:var(--negative);}
+
+@media (max-width:860px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .chart-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="brand">
+      <div class="mark">✳</div>
+      <div>
+        <h1>Brand Force. — Painel Operacional</h1>
+        <p>Planejamento financeiro de 24 meses · rotina semanal · certificações</p>
+      </div>
+    </div>
+    <div class="month-picker">
+      <label for="month-select">Mês atual:</label>
+      <select id="month-select"></select>
+    </div>
+  </div>
+
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="chart-row">
+    <div class="card">
+      <h2>Acumulado BRL — Meta Mercado Pago vs Realizado</h2>
+      <p class="card-sub">Até o mês selecionado acima</p>
+      <canvas id="chart-brl"></canvas>
+    </div>
+    <div class="card">
+      <h2>Acumulado USD — Meta Nomad vs Realizado</h2>
+      <p class="card-sub">Até o mês selecionado acima</p>
+      <canvas id="chart-usd"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Planejamento Financeiro — 24 meses</h2>
+    <p class="card-sub">Preencha "Realizado" a cada fechamento mensal — os totais e gráficos acima atualizam sozinhos.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Mês</th><th>Semestre</th>
+            <th>Meta MP (BRL)</th><th>Realizado MP (BRL)</th>
+            <th>Meta Nomad (USD)</th><th>Realizado Nomad (USD)</th>
+          </tr>
+        </thead>
+        <tbody id="finance-tbody"></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="2">Total Geral</td>
+            <td id="tot-meta-brl"></td>
+            <td id="tot-real-brl"></td>
+            <td id="tot-meta-usd"></td>
+            <td id="tot-real-usd"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Rotina Semanal Operacional</h2>
+    <p class="card-sub">Clique no status para marcar como concluído ou reabrir a tarefa.</p>
+    <div class="rotina-grid" id="rotina-grid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Roadmap de Certificações</h2>
+    <p class="card-sub" id="certs-progress-label"></p>
+    <div class="progress-outer"><div class="progress-inner" id="certs-progress-bar" style="width:0%"></div></div>
+    <div class="certs-grid" id="certs-grid" style="margin-top:16px;"></div>
+  </div>
+
+  <div class="footer">
+    <span id="save-status">Dados salvos automaticamente neste navegador (localStorage).</span>
+    <button class="reset-btn" id="reset-btn">Restaurar dados originais</button>
+  </div>
+
+</div>
+
+<script>
+const SEMESTRES = ["1º Semestre","2º Semestre","3º Semestre","4º Semestre"];
+function semestreDoMes(m){ return SEMESTRES[Math.floor((m-1)/6)]; }
+const METAS = {
+  1:[7000,400],2:[7000,400],3:[7000,400],4:[7000,400],5:[7000,400],6:[7000,400],
+  7:[8000,1250],8:[8000,1250],9:[8000,1250],10:[8000,1250],11:[8000,1250],12:[8000,1250],
+  13:[5000,2500],14:[5000,2500],15:[5000,2500],16:[5000,2500],17:[5000,2500],18:[5000,2500],
+  19:[5000,3500],20:[5000,3500],21:[5000,3500],22:[5000,3500],23:[5000,3500],24:[5000,3500],
+};
+
+function defaultFinance(){
+  const arr=[];
+  for(let m=1;m<=24;m++){
+    arr.push({mes:m, semestre:semestreDoMes(m), metaBRL:METAS[m][0], metaUSD:METAS[m][1], realizadoBRL:null, realizadoUSD:null});
+  }
+  return arr;
+}
+function defaultRotina(){
+  return [
+    {dia:"Segunda-feira", acao:"Mapeamento de 5 Leads Internacionais no LinkedIn (Startups Estônia / PMEs Canadá)", criterio:"Alimentar CRM/Notion com perfis dos Founders/CMOs", status:"Pendente"},
+    {dia:"Terça-feira", acao:"Produção e agendamento de 1 Post Técnico em Inglês", criterio:"Publicar no LinkedIn expondo metodologia de design/branding", status:"Pendente"},
+    {dia:"Quarta-feira", acao:"Envio de 3 mensagens personalizadas (Cold Outreach)", criterio:"Gerar conexão genuína e propor análise rápida de design por vídeo", status:"Pendente"},
+    {dia:"Quinta-feira", acao:"Revisão e polimento de 1 case do portfólio no site", criterio:"Garantir metodologia Desafio-Estratégia-Resultado sem erros", status:"Pendente"},
+    {dia:"Sexta-feira", acao:"Análise de métricas semanais e acompanhamento de respostas", criterio:"Medir visitas ao perfil e taxa de conversão de mensagens", status:"Pendente"},
+    {dia:"Sábado/Domingo", acao:"Estudo direcionado para Certificações Globais (2 horas)", criterio:"Avançar módulos na HubSpot Academy ou Google Skillshop", status:"Pendente"},
+    {dia:"Mensal", acao:"Fechamento financeiro e proteção cambial", criterio:"Transferir receita BRL para o cofrinho 120% CDI e gringa para Nomad", status:"Pendente"},
+  ];
+}
+function defaultCerts(){
+  return [
+    {nome:"Google Ads Search & Display", instituicao:"Google Skillshop", area:"Performance & Tráfego", prazo:"Meses 1-3", status:"Não Iniciado"},
+    {nome:"Meta Certified Digital Marketing Associate", instituicao:"Meta Blueprint", area:"Social Media & Growth", prazo:"Meses 4-6", status:"Não Iniciado"},
+    {nome:"HubSpot Content Marketing & Inbound", instituicao:"HubSpot Academy", area:"Estratégia & Conteúdo B2B", prazo:"Meses 1-3", status:"Não Iniciado"},
+    {nome:"Google Analytics 4 (GA4) Certification", instituicao:"Google Skillshop", area:"Dados & Métricas", prazo:"Meses 7-9", status:"Não Iniciado"},
+    {nome:"Adobe Certified Professional", instituicao:"Adobe", area:"Creative Design & Video", prazo:"Meses 10-12", status:"Não Iniciado"},
+  ];
+}
+
+let financeData = defaultFinance();
+let rotinaData = defaultRotina();
+let certsData = defaultCerts();
+let currentMonth = 1;
+let chartBRL=null, chartUSD=null;
+
+function fmtBRL(v){ return "R$ " + Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
+function fmtUSD(v){ return "$ " + Number(v||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
+
+// Armazenamento local do navegador (localStorage) — funciona em qualquer site,
+// incluindo GitHub Pages. Os dados ficam salvos apenas neste navegador/dispositivo.
+async function loadAll(){
+  try{
+    const f = localStorage.getItem('bf-finance');
+    financeData = f ? JSON.parse(f) : defaultFinance();
+  }catch(e){ financeData = defaultFinance(); }
+  try{
+    const r = localStorage.getItem('bf-rotina');
+    rotinaData = r ? JSON.parse(r) : defaultRotina();
+  }catch(e){ rotinaData = defaultRotina(); }
+  try{
+    const c = localStorage.getItem('bf-certs');
+    certsData = c ? JSON.parse(c) : defaultCerts();
+  }catch(e){ certsData = defaultCerts(); }
+
+  // pick default "current month" = first month missing a Realizado, else last month
+  const firstOpen = financeData.find(row => row.realizadoBRL === null && row.realizadoUSD === null);
+  currentMonth = firstOpen ? firstOpen.mes : 24;
+}
+
+async function saveFinance(){
+  try{ localStorage.setItem('bf-finance', JSON.stringify(financeData)); }catch(e){ console.error('Erro ao salvar financeiro', e); }
+}
+async function saveRotina(){
+  try{ localStorage.setItem('bf-rotina', JSON.stringify(rotinaData)); }catch(e){ console.error('Erro ao salvar rotina', e); }
+}
+async function saveCerts(){
+  try{ localStorage.setItem('bf-certs', JSON.stringify(certsData)); }catch(e){ console.error('Erro ao salvar certificações', e); }
+}
+
+function buildMonthSelect(){
+  const sel = document.getElementById('month-select');
+  sel.innerHTML = '';
+  for(let m=1;m<=24;m++){
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = 'Mês ' + m + ' — ' + semestreDoMes(m);
+    if(m===currentMonth) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', e=>{
+    currentMonth = parseInt(e.target.value,10);
+    renderKPIs(); renderCharts();
+  });
+}
+
+function renderKPIs(){
+  const upTo = financeData.filter(r=>r.mes<=currentMonth);
+  const metaBRL = upTo.reduce((s,r)=>s+r.metaBRL,0);
+  const metaUSD = upTo.reduce((s,r)=>s+r.metaUSD,0);
+  const realBRL = upTo.reduce((s,r)=>s+(r.realizadoBRL||0),0);
+  const realUSD = upTo.reduce((s,r)=>s+(r.realizadoUSD||0),0);
+  const pctBRL = metaBRL>0 ? (realBRL/metaBRL*100) : 0;
+  const pctUSD = metaUSD>0 ? (realUSD/metaUSD*100) : 0;
+  const tarefasFeitas = rotinaData.filter(t=>t.status==='Concluído').length;
+  const certsFeitas = certsData.filter(c=>c.status==='Concluído').length;
+
+  const kpis = [
+    {label:'Meta Acumulada BRL (até mês '+currentMonth+')', value: fmtBRL(metaBRL), sub:'Meta Mercado Pago'},
+    {label:'Realizado BRL (até mês '+currentMonth+')', value: fmtBRL(realBRL), sub: pctBRL.toFixed(0)+'% da meta', cls: pctBRL>=100?'positive':(pctBRL<60?'negative':'')},
+    {label:'Meta Acumulada USD (até mês '+currentMonth+')', value: fmtUSD(metaUSD), sub:'Meta Nomad'},
+    {label:'Realizado USD (até mês '+currentMonth+')', value: fmtUSD(realUSD), sub: pctUSD.toFixed(0)+'% da meta', cls: pctUSD>=100?'positive':(pctUSD<60?'negative':'')},
+  ];
+  const row = document.getElementById('kpi-row');
+  row.innerHTML = kpis.map(k=>`
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub ${k.cls||''}">${k.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('tot-meta-brl').textContent = fmtBRL(financeData.reduce((s,r)=>s+r.metaBRL,0));
+  document.getElementById('tot-real-brl').textContent = fmtBRL(financeData.reduce((s,r)=>s+(r.realizadoBRL||0),0));
+  document.getElementById('tot-meta-usd').textContent = fmtUSD(financeData.reduce((s,r)=>s+r.metaUSD,0));
+  document.getElementById('tot-real-usd').textContent = fmtUSD(financeData.reduce((s,r)=>s+(r.realizadoUSD||0),0));
+}
+
+function renderCharts(){
+  const labels = financeData.filter(r=>r.mes<=currentMonth).map(r=>'M'+r.mes);
+  let accMetaBRL=0, accRealBRL=0, accMetaUSD=0, accRealUSD=0;
+  const metaBRLarr=[], realBRLarr=[], metaUSDarr=[], realUSDarr=[];
+  financeData.filter(r=>r.mes<=currentMonth).forEach(r=>{
+    accMetaBRL += r.metaBRL; metaBRLarr.push(accMetaBRL);
+    accMetaUSD += r.metaUSD; metaUSDarr.push(accMetaUSD);
+    if(r.realizadoBRL!==null){ accRealBRL += r.realizadoBRL; realBRLarr.push(accRealBRL); } else { realBRLarr.push(null); }
+    if(r.realizadoUSD!==null){ accRealUSD += r.realizadoUSD; realUSDarr.push(accRealUSD); } else { realUSDarr.push(null); }
+  });
+
+  const commonOpts = {
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
+    scales:{y:{beginAtZero:true,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}},
+    interaction:{intersect:false,mode:'index'}
+  };
+
+  if(chartBRL) chartBRL.destroy();
+  chartBRL = new Chart(document.getElementById('chart-brl').getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Meta Acumulada', data:metaBRLarr, borderColor:'#161614', backgroundColor:'#16161420', borderWidth:2, tension:.25, pointRadius:2, spanGaps:false},
+      {label:'Realizado Acumulado', data:realBRLarr, borderColor:'#f7931e', backgroundColor:'#f7931e20', borderWidth:2, tension:.25, pointRadius:2, spanGaps:false},
+    ]},
+    options: commonOpts
+  });
+
+  if(chartUSD) chartUSD.destroy();
+  chartUSD = new Chart(document.getElementById('chart-usd').getContext('2d'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Meta Acumulada', data:metaUSDarr, borderColor:'#161614', backgroundColor:'#16161420', borderWidth:2, tension:.25, pointRadius:2, spanGaps:false},
+      {label:'Realizado Acumulado', data:realUSDarr, borderColor:'#f7931e', backgroundColor:'#f7931e20', borderWidth:2, tension:.25, pointRadius:2, spanGaps:false},
+    ]},
+    options: commonOpts
+  });
+}
+
+function renderFinanceTable(){
+  const tbody = document.getElementById('finance-tbody');
+  tbody.innerHTML = financeData.map(r=>`
+    <tr>
+      <td>${r.mes}</td>
+      <td><span class="sem-tag">${r.semestre}</span></td>
+      <td>${fmtBRL(r.metaBRL)}</td>
+      <td><input type="number" class="realizado" data-mes="${r.mes}" data-field="realizadoBRL" placeholder="—" value="${r.realizadoBRL===null?'':r.realizadoBRL}"></td>
+      <td>${fmtUSD(r.metaUSD)}</td>
+      <td><input type="number" class="realizado" data-mes="${r.mes}" data-field="realizadoUSD" placeholder="—" value="${r.realizadoUSD===null?'':r.realizadoUSD}"></td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('input.realizado').forEach(inp=>{
+    inp.addEventListener('change', async e=>{
+      const mes = parseInt(e.target.dataset.mes,10);
+      const field = e.target.dataset.field;
+      const raw = e.target.value;
+      const row = financeData.find(r=>r.mes===mes);
+      row[field] = raw==='' ? null : parseFloat(raw);
+      await saveFinance();
+      renderKPIs(); renderCharts();
+      flashSaved();
+    });
+  });
+}
+
+function renderRotina(){
+  const grid = document.getElementById('rotina-grid');
+  grid.innerHTML = rotinaData.map((t,i)=>`
+    <div class="task-card">
+      <div class="task-day">${t.dia}</div>
+      <div class="task-action">${t.acao}</div>
+      <div class="task-criterio">${t.criterio}</div>
+      <button class="status-btn ${t.status==='Concluído'?'status-concluido':'status-pendente'}" data-idx="${i}">${t.status}</button>
+    </div>`).join('');
+
+  grid.querySelectorAll('.status-btn').forEach(btn=>{
+    btn.addEventListener('click', async e=>{
+      const idx = parseInt(e.target.dataset.idx,10);
+      rotinaData[idx].status = rotinaData[idx].status==='Concluído' ? 'Pendente' : 'Concluído';
+      await saveRotina();
+      renderRotina(); renderKPIs();
+      flashSaved();
+    });
+  });
+}
+
+function renderCerts(){
+  const grid = document.getElementById('certs-grid');
+  grid.innerHTML = certsData.map((c,i)=>`
+    <div class="cert-card">
+      <div class="cert-name">${c.nome}</div>
+      <div class="cert-meta">${c.instituicao} · ${c.area}</div>
+      <div class="cert-meta">Prazo recomendado: ${c.prazo}</div>
+      <select class="cert-select" data-idx="${i}">
+        <option ${c.status==='Não Iniciado'?'selected':''}>Não Iniciado</option>
+        <option ${c.status==='Em Andamento'?'selected':''}>Em Andamento</option>
+        <option ${c.status==='Concluído'?'selected':''}>Concluído</option>
+      </select>
+    </div>`).join('');
+
+  grid.querySelectorAll('.cert-select').forEach(sel=>{
+    sel.addEventListener('change', async e=>{
+      const idx = parseInt(e.target.dataset.idx,10);
+      certsData[idx].status = e.target.value;
+      await saveCerts();
+      renderCertsProgress();
+      renderKPIs();
+      flashSaved();
+    });
+  });
+  renderCertsProgress();
+}
+
+function renderCertsProgress(){
+  const done = certsData.filter(c=>c.status==='Concluído').length;
+  const pct = (done/certsData.length*100);
+  document.getElementById('certs-progress-label').textContent = done+' de '+certsData.length+' certificações concluídas ('+pct.toFixed(0)+'%)';
+  document.getElementById('certs-progress-bar').style.width = pct+'%';
+}
+
+let flashTimer=null;
+function flashSaved(){
+  const el = document.getElementById('save-status');
+  el.textContent = 'Salvo ✓';
+  el.style.color = '#2e7d4f';
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=>{
+    el.textContent = 'Dados salvos automaticamente neste navegador (localStorage).';
+    el.style.color = '';
+  },1800);
+}
+
+document.getElementById('reset-btn').addEventListener('click', async ()=>{
+  if(!confirm('Isso vai apagar os valores de Realizado, status das tarefas e das certificações que você já preencheu. Continuar?')) return;
+  financeData = defaultFinance();
+  rotinaData = defaultRotina();
+  certsData = defaultCerts();
+  await saveFinance(); await saveRotina(); await saveCerts();
+  currentMonth = 1;
+  buildMonthSelect();
+  renderKPIs(); renderCharts(); renderFinanceTable(); renderRotina(); renderCerts();
+  flashSaved();
+});
+
+(async function init(){
+  await loadAll();
+  buildMonthSelect();
+  renderKPIs();
+  renderCharts();
+  renderFinanceTable();
+  renderRotina();
+  renderCerts();
+})();
+</script>
+</body>
+</html>
