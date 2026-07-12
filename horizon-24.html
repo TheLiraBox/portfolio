@@ -140,6 +140,29 @@ thead{position:sticky;top:0;background:var(--white);z-index:1;}
 .reset-btn{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;
   font-size:12px;color:var(--text-secondary);cursor:pointer;}
 .reset-btn:hover{border-color:var(--negative);color:var(--negative);}
+.edit-toggle-btn{
+  background:var(--orange);border:none;border-radius:8px;padding:7px 12px;
+  font-size:12.5px;font-weight:700;color:var(--black);cursor:pointer;
+}
+.edit-toggle-btn.active{background:#fff;color:var(--black);}
+.edit-hint{
+  background:#fdf0dc;color:#8a5a1a;border:1px solid #f2d5a4;border-radius:10px;
+  padding:10px 16px;font-size:12.5px;margin:-6px 0 18px;
+}
+.delete-btn{
+  border:none;background:none;color:var(--negative);font-size:12px;font-weight:700;
+  cursor:pointer;margin-left:8px;
+}
+.add-card{
+  border:1px dashed var(--line);border-radius:10px;padding:14px;
+  display:flex;align-items:center;justify-content:center;color:var(--text-secondary);
+  font-size:13px;font-weight:600;cursor:pointer;background:none;min-height:80px;
+}
+.add-card:hover{border-color:var(--orange);color:var(--orange);}
+.meta-input{
+  width:90px;padding:5px 7px;border:1px solid var(--orange);border-radius:6px;
+  font-size:13px;font-family:inherit;
+}
 
 @media (max-width:860px){
   .kpi-row{grid-template-columns:repeat(2,1fr);}
@@ -161,8 +184,11 @@ thead{position:sticky;top:0;background:var(--white);z-index:1;}
     <div class="month-picker">
       <label for="month-select">Mês atual:</label>
       <select id="month-select"></select>
+      <button id="edit-toggle-btn" class="edit-toggle-btn">✎ Modo de edição</button>
     </div>
   </div>
+
+  <p id="edit-hint" class="edit-hint" style="display:none;">Modo de edição ativo: você pode ajustar metas, adicionar/remover tarefas e certificações. Clique em "✎ Modo de edição" de novo para sair.</p>
 
   <div class="kpi-row" id="kpi-row"></div>
 
@@ -267,6 +293,7 @@ let financeData = defaultFinance();
 let rotinaData = defaultRotina();
 let certsData = defaultCerts();
 let currentMonth = 1;
+let editMode = false;
 let chartBRL=null, chartUSD=null;
 
 function fmtBRL(v){ return "R$ " + Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0}); }
@@ -394,9 +421,13 @@ function renderFinanceTable(){
     <tr>
       <td>${r.mes}</td>
       <td><span class="sem-tag">${r.semestre}</span></td>
-      <td>${fmtBRL(r.metaBRL)}</td>
+      <td>${editMode
+            ? `<input type="number" class="meta-input" data-mes="${r.mes}" data-field="metaBRL" value="${r.metaBRL}">`
+            : fmtBRL(r.metaBRL)}</td>
       <td><input type="number" class="realizado" data-mes="${r.mes}" data-field="realizadoBRL" placeholder="—" value="${r.realizadoBRL===null?'':r.realizadoBRL}"></td>
-      <td>${fmtUSD(r.metaUSD)}</td>
+      <td>${editMode
+            ? `<input type="number" class="meta-input" data-mes="${r.mes}" data-field="metaUSD" value="${r.metaUSD}">`
+            : fmtUSD(r.metaUSD)}</td>
       <td><input type="number" class="realizado" data-mes="${r.mes}" data-field="realizadoUSD" placeholder="—" value="${r.realizadoUSD===null?'':r.realizadoUSD}"></td>
     </tr>`).join('');
 
@@ -412,17 +443,30 @@ function renderFinanceTable(){
       flashSaved();
     });
   });
+
+  tbody.querySelectorAll('input.meta-input').forEach(inp=>{
+    inp.addEventListener('change', async e=>{
+      const mes = parseInt(e.target.dataset.mes,10);
+      const field = e.target.dataset.field;
+      const raw = e.target.value;
+      const row = financeData.find(r=>r.mes===mes);
+      row[field] = raw==='' ? 0 : parseFloat(raw);
+      await saveFinance();
+      renderKPIs(); renderCharts();
+      flashSaved();
+    });
+  });
 }
 
 function renderRotina(){
   const grid = document.getElementById('rotina-grid');
   grid.innerHTML = rotinaData.map((t,i)=>`
     <div class="task-card">
-      <div class="task-day">${t.dia}</div>
+      <div class="task-day">${t.dia}${editMode?`<button class="delete-btn" data-idx="${i}" data-action="del-task">remover</button>`:''}</div>
       <div class="task-action">${t.acao}</div>
       <div class="task-criterio">${t.criterio}</div>
       <button class="status-btn ${t.status==='Concluído'?'status-concluido':'status-pendente'}" data-idx="${i}">${t.status}</button>
-    </div>`).join('');
+    </div>`).join('') + (editMode ? `<button class="add-card" id="add-task-btn">+ Adicionar tarefa</button>` : '');
 
   grid.querySelectorAll('.status-btn').forEach(btn=>{
     btn.addEventListener('click', async e=>{
@@ -433,13 +477,39 @@ function renderRotina(){
       flashSaved();
     });
   });
+
+  grid.querySelectorAll('[data-action="del-task"]').forEach(btn=>{
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      const idx = parseInt(e.target.dataset.idx,10);
+      if(!confirm('Remover a tarefa de "'+rotinaData[idx].dia+'"?')) return;
+      rotinaData.splice(idx,1);
+      await saveRotina();
+      renderRotina(); renderKPIs();
+      flashSaved();
+    });
+  });
+
+  const addBtn = document.getElementById('add-task-btn');
+  if(addBtn){
+    addBtn.addEventListener('click', async ()=>{
+      const dia = prompt('Dia da semana (ex.: Segunda-feira):');
+      if(!dia) return;
+      const acao = prompt('Ação operacional:') || '';
+      const criterio = prompt('Critério de sucesso / destino no Kanban:') || '';
+      rotinaData.push({dia, acao, criterio, status:'Pendente'});
+      await saveRotina();
+      renderRotina(); renderKPIs();
+      flashSaved();
+    });
+  }
 }
 
 function renderCerts(){
   const grid = document.getElementById('certs-grid');
   grid.innerHTML = certsData.map((c,i)=>`
     <div class="cert-card">
-      <div class="cert-name">${c.nome}</div>
+      <div class="cert-name">${c.nome}${editMode?`<button class="delete-btn" data-idx="${i}" data-action="del-cert">remover</button>`:''}</div>
       <div class="cert-meta">${c.instituicao} · ${c.area}</div>
       <div class="cert-meta">Prazo recomendado: ${c.prazo}</div>
       <select class="cert-select" data-idx="${i}">
@@ -447,7 +517,7 @@ function renderCerts(){
         <option ${c.status==='Em Andamento'?'selected':''}>Em Andamento</option>
         <option ${c.status==='Concluído'?'selected':''}>Concluído</option>
       </select>
-    </div>`).join('');
+    </div>`).join('') + (editMode ? `<button class="add-card" id="add-cert-btn">+ Adicionar certificação</button>` : '');
 
   grid.querySelectorAll('.cert-select').forEach(sel=>{
     sel.addEventListener('change', async e=>{
@@ -459,6 +529,33 @@ function renderCerts(){
       flashSaved();
     });
   });
+
+  grid.querySelectorAll('[data-action="del-cert"]').forEach(btn=>{
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      const idx = parseInt(e.target.dataset.idx,10);
+      if(!confirm('Remover a certificação "'+certsData[idx].nome+'"?')) return;
+      certsData.splice(idx,1);
+      await saveCerts();
+      renderCerts(); renderKPIs();
+      flashSaved();
+    });
+  });
+
+  const addBtn = document.getElementById('add-cert-btn');
+  if(addBtn){
+    addBtn.addEventListener('click', async ()=>{
+      const nome = prompt('Nome da certificação:');
+      if(!nome) return;
+      const instituicao = prompt('Instituição:') || '';
+      const area = prompt('Área de foco:') || '';
+      const prazo = prompt('Prazo recomendado (ex.: Meses 1-3):') || '';
+      certsData.push({nome, instituicao, area, prazo, status:'Não Iniciado'});
+      await saveCerts();
+      renderCerts(); renderKPIs();
+      flashSaved();
+    });
+  }
   renderCertsProgress();
 }
 
@@ -480,6 +577,16 @@ function flashSaved(){
     el.style.color = '';
   },1800);
 }
+
+document.getElementById('edit-toggle-btn').addEventListener('click', ()=>{
+  editMode = !editMode;
+  const btn = document.getElementById('edit-toggle-btn');
+  const hint = document.getElementById('edit-hint');
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? '✓ Sair do modo de edição' : '✎ Modo de edição';
+  hint.style.display = editMode ? 'block' : 'none';
+  renderFinanceTable(); renderRotina(); renderCerts();
+});
 
 document.getElementById('reset-btn').addEventListener('click', async ()=>{
   if(!confirm('Isso vai apagar os valores de Realizado, status das tarefas e das certificações que você já preencheu. Continuar?')) return;
